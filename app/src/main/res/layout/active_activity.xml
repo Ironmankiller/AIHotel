@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@id/vBaseBottomWindowRoot"
+    style="@style/activity_page" >
+
+    <RelativeLayout style="@style/topbar_bg" >
+
+        <ImageButton style="@style/topbar_return_img" />
+
+        <TextView
+            style="@style/topbar_title"
+            android:layout_centerHorizontal="true"
+            android:text="激活" />
+
+        <Button
+            style="@style/topbar_right_btn"
+            android:text="确定" />
+    </RelativeLayout>
+
+    <View
+        style="@style/divider_horizontal_1px"
+        android:layout_marginTop="@dimen/item_distance" />
+
+    <LinearLayout style="@style/edit_item" >
+
+        <EditText
+            android:id="@+id/etEditTextID"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="@dimen/item_left_tv_padding"
+            android:layout_weight="1"
+            android:background="@null"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:hint="请输入APP_ID"
+            android:textColor="@color/black"
+            android:textSize="17sp"
+            android:importantForAutofill="no">
+
+            <requestFocus />
+        </EditText>
+
+        <ImageView
+            android:id="@+id/ivEditTextIDClear"
+            style="@style/edit_item_right_clear"
+            android:layout_width="wrap_content"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <View
+        style="@style/divider_horizontal_1px"
+        android:layout_marginTop="@dimen/item_distance" />
+
+    <LinearLayout style="@style/edit_item" >
+
+        <EditText
+            android:id="@+id/etEditTextKey"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="@dimen/item_left_tv_padding"
+            android:layout_weight="1"
+            android:background="@null"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:hint="请输入SDK_KEY"
+            android:textColor="@color/black"
+            android:textSize="17sp"
+            android:importantForAutofill="no">
+
+            <requestFocus />
+        </EditText>
+
+        <ImageView
+            android:id="@+id/ivEditTextKeyClear"
+            style="@style/edit_item_right_clear"
+            android:layout_width="wrap_content"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <View style="@style/divider_horizontal_1px" />
+
+    <TextView
+        android:id="@+id/tvEditTextInfoRemind"
+        style="@style/content_item_remind_tv"
+        android:text="请在联网状态下激活，一台设备只需激活一次" />
+</LinearLayout>
