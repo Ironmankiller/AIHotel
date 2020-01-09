@@ -2,6 +2,8 @@ package com.demo.lss.aihotel.activity;
 
 import android.Manifest;
 import android.content.pm.ActivityInfo;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.hardware.Camera;
 import android.os.Build;
@@ -16,7 +18,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
-import android.widget.CompoundButton;
 import android.widget.Switch;
 
 import com.arcsoft.face.AgeInfo;
@@ -28,6 +29,8 @@ import com.arcsoft.face.LivenessInfo;
 import com.arcsoft.face.VersionInfo;
 import com.arcsoft.face.enums.DetectFaceOrientPriority;
 import com.arcsoft.face.enums.DetectMode;
+import com.arcsoft.imageutil.ArcSoftImageFormat;
+import com.arcsoft.imageutil.ArcSoftImageUtil;
 import com.demo.lss.aihotel.R;
 import com.demo.lss.aihotel.faceserver.CompareResult;
 import com.demo.lss.aihotel.faceserver.FaceServer;
@@ -43,9 +46,10 @@ import com.demo.lss.aihotel.utils.face.LivenessType;
 import com.demo.lss.aihotel.utils.face.RecognizeColor;
 import com.demo.lss.aihotel.utils.face.RequestFeatureStatus;
 import com.demo.lss.aihotel.utils.face.RequestLivenessStatus;
-import com.demo.lss.aihotel.widget.FaceRectView;
-import com.demo.lss.aihotel.widget.FaceSearchResultAdapter;
+import com.demo.lss.aihotel.view.FaceRectView;
+import com.demo.lss.aihotel.adapter.FaceSearchResultAdapter;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -195,14 +199,14 @@ public class RegisterAndRecognizeActivity extends BaseActivity implements ViewTr
         previewView.getViewTreeObserver().addOnGlobalLayoutListener(this);
 
         faceRectView = findViewById(R.id.single_camera_face_rect_view);
-        switchLivenessDetect = findViewById(R.id.single_camera_switch_liveness_detect);
-        switchLivenessDetect.setChecked(livenessDetect);
-        switchLivenessDetect.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                livenessDetect = isChecked;
-            }
-        });
+//        switchLivenessDetect = findViewById(R.id.single_camera_switch_liveness_detect);
+//        switchLivenessDetect.setChecked(livenessDetect);
+//        switchLivenessDetect.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+//            @Override
+//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//                livenessDetect = isChecked;
+//            }
+//        });
         RecyclerView recyclerShowFaceInfo = findViewById(R.id.single_camera_recycler_view_person);
         compareResultList = new ArrayList<>();
         adapter = new FaceSearchResultAdapter(compareResultList, this);
@@ -454,7 +458,7 @@ public class RegisterAndRecognizeActivity extends BaseActivity implements ViewTr
                 if (facePreviewInfoList != null && faceRectView != null && drawHelper != null) {
                     drawPreviewInfo(facePreviewInfoList);
                 }
-                registerFace(nv21, facePreviewInfoList);
+                registerFace(nv211,facePreviewInfoList);
                 clearLeftFace(facePreviewInfoList);
 
                 if (facePreviewInfoList != null && facePreviewInfoList.size() > 0 && previewSize != null) {
@@ -557,6 +561,7 @@ public class RegisterAndRecognizeActivity extends BaseActivity implements ViewTr
                     });
         }
     }
+
 
     private void drawPreviewInfo(List<FacePreviewInfo> facePreviewInfoList) {
         List<DrawInfo> drawInfoList = new ArrayList<>();
@@ -718,7 +723,7 @@ public class RegisterAndRecognizeActivity extends BaseActivity implements ViewTr
                 });
     }
 
-
+    byte[] nv211;
     /**
      * 将准备注册的状态置为{@link #REGISTER_STATUS_READY}
      *
@@ -727,24 +732,27 @@ public class RegisterAndRecognizeActivity extends BaseActivity implements ViewTr
     public void register(View view) {
         if (registerStatus == REGISTER_STATUS_DONE) {
             registerStatus = REGISTER_STATUS_READY;
+            Bitmap bmp = BitmapFactory.decodeResource(getResources(), R.drawable.idcard);
+            nv211=new byte[bmp.getWidth()*bmp.getHeight()*3/2];
+            ArcSoftImageUtil.bitmapToImageData(bmp,nv211,ArcSoftImageFormat.NV21);
         }
     }
 
-    /**
-     * 切换相机。注意：若切换相机发现检测不到人脸，则及有可能是检测角度导致的，需要销毁引擎重新创建或者在设置界面修改配置的检测角度
-     *
-     * @param view
-     */
-    public void switchCamera(View view) {
-        if (cameraHelper != null) {
-            boolean success = cameraHelper.switchCamera();
-            if (!success) {
-                showToast(getString(R.string.switch_camera_failed));
-            } else {
-                showLongToast(getString(R.string.notice_change_detect_degree));
-            }
-        }
-    }
+//    /**
+//     * 切换相机。注意：若切换相机发现检测不到人脸，则及有可能是检测角度导致的，需要销毁引擎重新创建或者在设置界面修改配置的检测角度
+//     *
+//     * @param view
+//     */
+//    public void switchCamera(View view) {
+//        if (cameraHelper != null) {
+//            boolean success = cameraHelper.switchCamera();
+//            if (!success) {
+//                showToast(getString(R.string.switch_camera_failed));
+//            } else {
+//                showLongToast(getString(R.string.notice_change_detect_degree));
+//            }
+//        }
+//    }
 
     /**
      * 在{@link #previewView}第一次布局完成后，去除该监听，并且进行引擎和相机的初始化

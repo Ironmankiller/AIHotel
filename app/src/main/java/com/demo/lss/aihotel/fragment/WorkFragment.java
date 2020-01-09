@@ -116,12 +116,7 @@ public class WorkFragment extends BaseFragment implements View.OnClickListener {
     @Override
     public void initEvent() {//必须调用
 
-        findView(R.id.llWorkCanting).setOnClickListener(this);
-        findView(R.id.llWorkDianti).setOnClickListener(this);
-        findView(R.id.llWorkFangmen).setOnClickListener(this);
-        findView(R.id.llWorkHuiyishi).setOnClickListener(this);
-        findView(R.id.llWorkJianshenfang).setOnClickListener(this);
-        findView(R.id.llWorkQiantai).setOnClickListener(this);
+        findView(R.id.llWork).setOnClickListener(this);
     }
 
 
@@ -133,23 +128,10 @@ public class WorkFragment extends BaseFragment implements View.OnClickListener {
             return;
         }
         switch (v.getId()) {
-            case R.id.llWorkQiantai:
-                checkLibraryAndJump(RegisterAndRecognizeActivity.class,WORK_QIANTAI);
-                break;
-            case R.id.llWorkDianti:
-                checkLibraryAndJump(RegisterAndRecognizeActivity.class,WORK_DIANTI);
-                break;
-            case R.id.llWorkFangmen:
-                checkLibraryAndJump(RegisterAndRecognizeActivity.class,WORK_FANGMEN);
-                break;
-            case R.id.llWorkJianshenfang:
-                checkLibraryAndJump(RegisterAndRecognizeActivity.class,WORK_JIANSHENFANG);
-                break;
-            case R.id.llWorkCanting:
-                checkLibraryAndJump(RegisterAndRecognizeActivity.class,WORK_CANTING);
-                break;
-            case R.id.llWorkHuiyishi:
-                checkLibraryAndJump(RegisterAndRecognizeActivity.class,WORK_HUIYISHI);
+            case R.id.llWork:
+                String env = DataManager.getInstance().getEnvironment();
+                if(env.equals("前台"))
+                    checkLibraryAndJump(RegisterAndRecognizeActivity.class);
                 break;
             default:
                 break;
@@ -192,13 +174,13 @@ public class WorkFragment extends BaseFragment implements View.OnClickListener {
     }
 
 
-    void checkLibraryAndJump(Class activityClass,int flag) {
+    void checkLibraryAndJump(Class activityClass) {
         if (!libraryExists) {
             showShortToast(getString(R.string.library_not_found));
             return;
         }
         Intent intent = new Intent(context,activityClass);
-        startActivity(intent.addFlags(flag));
+        startActivity(intent);
     }
     //内部类,尽量少用<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 

@@ -11,19 +11,19 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-        <com.demo.lss.aihotel.widget.FaceRectView
+        <com.demo.lss.aihotel.view.FaceRectView
             android:id="@+id/single_camera_face_rect_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
     </FrameLayout>
 
-    <Switch
-        android:id="@+id/single_camera_switch_liveness_detect"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:layout_margin="20dp"
-        android:text="@string/liveness_detect" />
+    <!--<Switch-->
+        <!--android:id="@+id/single_camera_switch_liveness_detect"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_gravity="bottom"-->
+        <!--android:layout_margin="20dp"-->
+        <!--android:text="@string/liveness_detect" />-->
 
     <LinearLayout
         android:layout_margin="20dp"
@@ -36,11 +36,11 @@
             android:layout_height="wrap_content"
             android:onClick="register"
             android:text="@string/register" />
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="switchCamera"
-            android:text="@string/switch_camera" />
+        <!--<Button-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:onClick="switchCamera"-->
+            <!--android:text="@string/switch_camera" />-->
     </LinearLayout>
 
     <android.support.v7.widget.RecyclerView

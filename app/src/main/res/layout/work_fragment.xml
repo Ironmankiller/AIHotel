@@ -9,85 +9,19 @@
         <LinearLayout style="@style/ll_vertical_match_match" >
 
             <LinearLayout
-                android:id="@+id/llWorkQiantai"
+                android:id="@+id/llWork"
                 style="@style/content_item_white" >
 
                 <TextView
                     style="@style/content_item_lf_tv"
                     android:layout_weight="1"
-                    android:text="前台人证核验" />
+                    android:text="开始工作" />
 
                 <ImageView style="@style/content_item_rt_img" />
             </LinearLayout>
 
             <View style="@style/divider_horizontal_1px" />
 
-            <LinearLayout
-                android:id="@+id/llWorkDianti"
-                style="@style/content_item_white" >
-
-                <TextView
-                    style="@style/content_item_lf_tv"
-                    android:layout_weight="1"
-                    android:text="电梯间人脸识别" />
-
-                <ImageView style="@style/content_item_rt_img" />
-            </LinearLayout>
-
-            <View style="@style/divider_horizontal_1px" />
-
-            <LinearLayout
-                android:id="@+id/llWorkFangmen"
-                style="@style/content_item_white" >
-
-                <TextView
-                    style="@style/content_item_lf_tv"
-                    android:layout_weight="1"
-                    android:text="房门人脸识别" />
-
-                <ImageView style="@style/content_item_rt_img" />
-            </LinearLayout>
-
-            <View style="@style/divider_horizontal_1px" />
-
-            <LinearLayout
-                android:id="@+id/llWorkJianshenfang"
-                style="@style/content_item_white" >
-
-                <TextView
-                    style="@style/content_item_lf_tv"
-                    android:layout_weight="1"
-                    android:text="健身房人脸识别" />
-
-                <ImageView style="@style/content_item_rt_img" />
-            </LinearLayout>
-            <View style="@style/divider_horizontal_1px" />
-
-            <LinearLayout
-                android:id="@+id/llWorkCanting"
-                style="@style/content_item_white" >
-
-                <TextView
-                    style="@style/content_item_lf_tv"
-                    android:layout_weight="1"
-                    android:text="餐厅人脸识别" />
-
-                <ImageView style="@style/content_item_rt_img" />
-            </LinearLayout>
-            <View style="@style/divider_horizontal_1px" />
-
-            <LinearLayout
-                android:id="@+id/llWorkHuiyishi"
-                style="@style/content_item_white" >
-
-                <TextView
-                    style="@style/content_item_lf_tv"
-                    android:layout_weight="1"
-                    android:text="会议室人脸识别" />
-
-                <ImageView style="@style/content_item_rt_img" />
-            </LinearLayout>
-            <View style="@style/divider_horizontal_1px" />
         </LinearLayout>
 
     </ScrollView>

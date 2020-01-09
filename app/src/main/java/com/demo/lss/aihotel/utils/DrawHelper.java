@@ -10,7 +10,7 @@ import com.arcsoft.face.AgeInfo;
 import com.arcsoft.face.GenderInfo;
 import com.arcsoft.face.LivenessInfo;
 import com.demo.lss.aihotel.model.DrawInfo;
-import com.demo.lss.aihotel.widget.FaceRectView;
+import com.demo.lss.aihotel.view.FaceRectView;
 
 import java.util.List;
 

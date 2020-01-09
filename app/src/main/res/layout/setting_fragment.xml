@@ -10,7 +10,7 @@
 
             <ImageView
                 android:id="@+id/ivSettingHead"
-                android:layout_width="90dp"
+                android:layout_width="100dp"
                 android:layout_height="90dp"
                 android:layout_margin="@dimen/item_distance"
                 android:scaleType="centerCrop"
@@ -29,6 +29,12 @@
                     android:id="@+id/llSettingActiveA"
                     android:layout_weight="1"
                     android:text="激活" />
+                <TextView
+                    android:id="@+id/llSettingActiveTx"
+                    style="@style/content_item_rt_tv"
+                    android:layout_weight="1"
+                    android:text="已激活"
+                    android:textColor="@color/gray_deep"/>
 
                 <ImageView style="@style/content_item_rt_img" />
             </LinearLayout>
@@ -43,6 +49,12 @@
                     style="@style/content_item_lf_tv"
                     android:layout_weight="1"
                     android:text="工作环境" />
+                <TextView
+                    android:id="@+id/llSettingEnvironmentTx"
+                    style="@style/content_item_rt_tv"
+                    android:layout_weight="1"
+                    android:text="前台"
+                    android:textColor="@color/gray_deep"/>
 
                 <ImageView style="@style/content_item_rt_img" />
             </LinearLayout>
@@ -57,6 +69,12 @@
                     style="@style/content_item_lf_tv"
                     android:layout_weight="1"
                     android:text="设置服务器" />
+                <TextView
+                    android:id="@+id/llSettingServerIPTx"
+                    style="@style/content_item_rt_tv"
+                    android:layout_weight="1"
+                    android:text="127.0.0.1:80"
+                    android:textColor="@color/gray_deep"/>
 
                 <ImageView style="@style/content_item_rt_img" />
             </LinearLayout>

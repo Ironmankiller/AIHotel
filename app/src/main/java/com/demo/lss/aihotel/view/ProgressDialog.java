@@ -1,4 +1,4 @@
-package com.demo.lss.aihotel.widget;
+package com.demo.lss.aihotel.view;
 
 import android.content.Context;
 import android.support.annotation.NonNull;

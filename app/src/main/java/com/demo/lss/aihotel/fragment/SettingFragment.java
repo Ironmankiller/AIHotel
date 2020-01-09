@@ -14,6 +14,7 @@ limitations under the License.*/
 
 package com.demo.lss.aihotel.fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.view.LayoutInflater;
@@ -32,8 +33,10 @@ import com.demo.lss.aihotel.manager.DataManager;
 
 import zuo.biao.library.base.BaseFragment;
 import zuo.biao.library.ui.AlertDialog;
+import zuo.biao.library.ui.BottomMenuWindow;
 import zuo.biao.library.ui.EditTextInfoActivity;
 import zuo.biao.library.ui.EditTextInfoWindow;
+import zuo.biao.library.ui.SelectPictureActivity;
 import zuo.biao.library.util.StringUtil;
 
 /**设置fragment
@@ -43,6 +46,7 @@ import zuo.biao.library.util.StringUtil;
 public class SettingFragment extends BaseFragment implements OnClickListener ,AlertDialog.OnDialogButtonClickListener {
 	private static final String TAG = "SettingFragment";
 	private Boolean isActive = false;
+	private String envStr;
 
 	//与Activity通信<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -65,8 +69,8 @@ public class SettingFragment extends BaseFragment implements OnClickListener ,Al
 		//类相关初始化，必须使用>>>>>>>>>>>>>>>>
 
 		//功能归类分区方法，必须调用<<<<<<<<<<
-		initView();
 		initData();
+		initView();
 		initEvent();
 		//功能归类分区方法，必须调用>>>>>>>>>>
 
@@ -77,11 +81,23 @@ public class SettingFragment extends BaseFragment implements OnClickListener ,Al
 
 	//UI显示区(操作UI，但不存在数据获取或处理代码，也不存在事件监听代码)<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-	private ImageView ivSettingHead;
+	private TextView tvSettingEnvironment;
+	private TextView tvSettingActive;
+	private TextView tvSettingServerIP;
 	@Override
 	public void initView() {//必须调用
 
-		ivSettingHead = findView(R.id.ivSettingHead);
+		tvSettingEnvironment = findView(R.id.llSettingEnvironmentTx);
+		tvSettingActive = findView(R.id.llSettingActiveTx);
+		tvSettingServerIP = findView(R.id.llSettingServerIPTx);
+
+		if(isActive!=null&&isActive) {
+			tvSettingActive.setText("已激活");
+		} else{
+			tvSettingActive.setText("未激活");
+		}
+		tvSettingEnvironment.setText(envStr);
+		tvSettingServerIP.setText(ITEM_SERVER_IP[0]);
 	}
 
 
@@ -89,7 +105,8 @@ public class SettingFragment extends BaseFragment implements OnClickListener ,Al
 
 	//UI显示区(操作UI，但不存在数据获取或处理代码，也不存在事件监听代码)>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-
+	private static final String[] TOPBAR_ENVIRONMENT_NAMES = {"前台", "电梯口", "房门","会议室","健身房","餐厅"};
+	private static final String[] ITEM_SERVER_IP = {"127.0.0.1:8080"};
 
 
 
@@ -104,6 +121,7 @@ public class SettingFragment extends BaseFragment implements OnClickListener ,Al
 	public void initData() {//必须调用
 
 		isActive = DataManager.getInstance().getActiveState();
+		envStr = DataManager.getInstance().getEnvironment();
 	}
 
 
@@ -137,11 +155,12 @@ public class SettingFragment extends BaseFragment implements OnClickListener ,Al
 				if(isActive!=null && isActive==true) {
 					new AlertDialog(context, "提示", "这台设备已被激活", false, 0, this).show();
 				} else {
-					toActivity(ActiveActivity.createIntent(context));
+					toActivity(ActiveActivity.createIntent(context),REQUEST_TO_ACTIVE);
 				}
 				break;
 			case R.id.llSettingEnvironment:
-				toActivity(EnvironmentActivity.createIntent(context));
+				toActivity(BottomMenuWindow.createIntent(context, TOPBAR_ENVIRONMENT_NAMES)
+						.putExtra(BottomMenuWindow.INTENT_TITLE, "选择工作环境"), REQUEST_TO_BOTTOM_MENU, false);
 				break;
 			case R.id.llSettingServer:
 				toActivity(ServerActivity.createIntent(context));
@@ -157,7 +176,39 @@ public class SettingFragment extends BaseFragment implements OnClickListener ,Al
 
 	//生命周期、onActivityResult<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
+	private static final int REQUEST_TO_SELECT_PICTURE = 20;
+	private static final int REQUEST_TO_CUT_PICTURE = 21;
+	public static final int REQUEST_TO_CAMERA_SCAN = 22;
+	private static final int REQUEST_TO_EDIT_TEXT_INFO = 23;
+	private static final int REQUEST_TO_SERVER_SETTING = 24;
+	private static final int REQUEST_TO_DEMO_BOTTOM_WINDOW = 25;
 
+	private static final int REQUEST_TO_ACTIVE = 30;
+	private static final int REQUEST_TO_BOTTOM_MENU = 31;
+	private static final int REQUEST_TO_PLACE_PICKER = 32;
+	private static final int REQUEST_TO_DATE_PICKER = 33;
+	private static final int REQUEST_TO_TIME_PICKER = 34;
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		if (resultCode != RESULT_OK) {
+			return;
+		}
+		switch (requestCode) {
+			case REQUEST_TO_BOTTOM_MENU:
+				int position = data.getIntExtra(BottomMenuWindow.RESULT_ITEM_ID, -1);
+				tvSettingEnvironment.setText(TOPBAR_ENVIRONMENT_NAMES[position]);
+				DataManager.getInstance().saveEnvironment(TOPBAR_ENVIRONMENT_NAMES[position]);
+				break;
+			case REQUEST_TO_ACTIVE:
+				isActive = true;
+				tvSettingActive.setText("已激活");
+				DataManager.getInstance().saveActiveState(true);
+				new AlertDialog(context, "提示", "这台设备已被激活", false, 0, this).show();
+			default:
+		}
+	}
 
 	//生命周期、onActivityResult>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 

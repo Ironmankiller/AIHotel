@@ -138,7 +138,7 @@ public class ActiveActivity extends BaseActivity {
 
     @Override
     public void initData() {//必须调用
-
+        ActivityCompat.requestPermissions(this, NEEDED_PERMISSIONS, ACTION_REQUEST_PERMISSIONS);
     }
 
 
@@ -175,8 +175,9 @@ public class ActiveActivity extends BaseActivity {
     @Override
     public void onForwardClick(View v) {
         activeEngine(v,etEditTextID.getText().toString(),etEditTextKEY.getText().toString());
-        finish();
     }
+
+
 
 
     //生命周期、onActivityResult<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -251,8 +252,9 @@ public class ActiveActivity extends BaseActivity {
                         int res = FaceEngine.getActiveFileInfo(ActiveActivity.this, activeFileInfo);
                         if (res == ErrorInfo.MOK) {
                             Log.i(TAG, activeFileInfo.toString());
-                            DataManager.getInstance().saveActiveState(true);
+                            setResult(RESULT_OK, intent);
                         }
+                        finish();
                     }
 
                     @Override

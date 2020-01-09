@@ -90,6 +90,42 @@ public class DataManager {
 		return JSON.parseObject(sdf.getString("active", null), Boolean.class);
 	}
 
+	/**
+	 * 保存工作环境
+	 * @param env
+	 */
+	public void saveEnvironment(String env) {
+		saveEnvironment(context.getSharedPreferences(PATH_USER, Context.MODE_PRIVATE), env);
+	}
+
+	/**
+	 * 保存工作环境
+	 * @param sdf
+	 * @param env
+	 */
+	public void saveEnvironment(SharedPreferences sdf, String env) {
+		if (sdf == null || env == null) {
+			Log.e(TAG, "saveEnvironment sdf == null || user == null >> return;");
+			return;
+		}
+		Log.i(TAG, "saveEnvironment  state = " + env);
+		sdf.edit().remove("environment").putString("environment", JSON.toJSONString(env)).commit();
+	}
+
+	/**
+	 * 获得工作环境
+	 * @param machineId
+	 * @return
+	 */
+	public String getEnvironment() {
+		SharedPreferences sdf = context.getSharedPreferences(PATH_USER, Context.MODE_PRIVATE);
+		if (sdf == null) {
+			Log.e(TAG, "get sdf == null >>  return;");
+			return null;
+		}
+		return sdf.getString("environment", null);
+	}
+
 	/**获取当前用户id
 	 * @param context
 	 * @return
