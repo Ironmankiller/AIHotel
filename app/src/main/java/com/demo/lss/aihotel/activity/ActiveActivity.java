@@ -44,6 +44,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import zuo.biao.library.base.BaseActivity;
+import zuo.biao.library.ui.AlertDialog;
 import zuo.biao.library.ui.EditTextInfoWindow;
 import zuo.biao.library.util.EditTextUtil;
 import zuo.biao.library.util.StringUtil;
@@ -174,7 +175,7 @@ public class ActiveActivity extends BaseActivity {
 
     @Override
     public void onForwardClick(View v) {
-        activeEngine(v,etEditTextID.getText().toString(),etEditTextKEY.getText().toString());
+        activeEngine(v, etEditTextID.getText().toString(), etEditTextKEY.getText().toString());
     }
 
 

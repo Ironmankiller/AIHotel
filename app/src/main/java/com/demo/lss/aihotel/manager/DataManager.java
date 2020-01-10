@@ -19,6 +19,7 @@ import android.content.SharedPreferences;
 
 import com.demo.lss.aihotel.application.AIHotelApplication;
 import com.demo.lss.aihotel.model.Machine;
+import com.demo.lss.aihotel.model.MyLog;
 
 import zuo.biao.library.util.JSON;
 import zuo.biao.library.util.Log;
@@ -53,6 +54,57 @@ public class DataManager {
 
 	public final String KEY_CURRENT_USER_ID = "KEY_CURRENT_USER_ID";
 	public final String KEY_LAST_USER_ID = "KEY_LAST_USER_ID";
+
+	/**
+	 * 获取日志数量
+	 */
+	public Integer getMyLogCount() {
+		SharedPreferences sdf = context.getSharedPreferences(PATH_USER, Context.MODE_PRIVATE);
+		if (sdf == null) {
+			Log.e(TAG, "get sdf == null >>  return;");
+			return null;
+		}
+		return sdf.getInt("MyLogCount",0);
+	}
+
+	/**
+	 * 保存日志
+	 * @param myLog
+	 */
+	public void saveMyLog(MyLog myLog) {
+		saveMyLog(context.getSharedPreferences(PATH_USER, Context.MODE_PRIVATE), myLog);
+	}
+
+	/**
+	 * 保存日志
+	 * @param sdf
+	 * @param myLog
+	 */
+	public void saveMyLog(SharedPreferences sdf, MyLog myLog) {
+		if (sdf == null || myLog == null) {
+			Log.e(TAG, "saveActive sdf == null || user == null >> return;");
+			return;
+		}
+		Log.i(TAG, "saveMyLog  state = " + myLog);
+		//已经存放的日志的数量
+		int count = sdf.getInt("MyLogCount",0)+1;
+		sdf.edit().remove("myLog"+count).putString("myLog"+count, JSON.toJSONString(myLog)).apply();
+		sdf.edit().remove("MyLogCount").putInt("MyLogCount",count).apply();
+	}
+
+	/**
+	 * 获得日志
+	 * @param count 需要获取的日志的索引
+	 * @return
+	 */
+	public MyLog getMyLog(int count) {
+		SharedPreferences sdf = context.getSharedPreferences(PATH_USER, Context.MODE_PRIVATE);
+		if (sdf == null) {
+			Log.e(TAG, "get sdf == null >>  return;");
+			return null;
+		}
+		return JSON.parseObject(sdf.getString("myLog"+count, null), MyLog.class);
+	}
 
 	/**
 	 * 保存激活状态

@@ -33,9 +33,10 @@
             android:screenOrientation="portrait" />
         <activity android:name=".activity.ActiveActivity" />
         <activity android:name=".activity.EnvironmentActivity" />
-        <activity android:name=".activity.ServerActivity" />
+        <activity android:name=".activity.ServerSettingActivity" />
         <activity android:name=".activity.AboutActivity" />
         <activity android:name=".activity.RegisterAndRecognizeActivity" />
+        <activity android:name=".activity.MyLogRecyclerActivity"></activity>
     </application>
 
 </manifest>

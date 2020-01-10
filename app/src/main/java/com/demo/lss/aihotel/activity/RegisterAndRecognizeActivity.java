@@ -1,41 +1,65 @@
 package com.demo.lss.aihotel.activity;
 
 import android.Manifest;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Point;
+import android.graphics.Typeface;
 import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.ParcelableSpan;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
+import android.widget.ProgressBar;
 import android.widget.Switch;
 
 import com.arcsoft.face.AgeInfo;
 import com.arcsoft.face.ErrorInfo;
+import com.arcsoft.face.Face3DAngle;
 import com.arcsoft.face.FaceEngine;
 import com.arcsoft.face.FaceFeature;
+import com.arcsoft.face.FaceInfo;
+import com.arcsoft.face.FaceSimilar;
 import com.arcsoft.face.GenderInfo;
 import com.arcsoft.face.LivenessInfo;
 import com.arcsoft.face.VersionInfo;
+import com.arcsoft.face.enums.CompareModel;
 import com.arcsoft.face.enums.DetectFaceOrientPriority;
 import com.arcsoft.face.enums.DetectMode;
+import com.arcsoft.face.enums.DetectModel;
 import com.arcsoft.imageutil.ArcSoftImageFormat;
 import com.arcsoft.imageutil.ArcSoftImageUtil;
+import com.arcsoft.imageutil.ArcSoftImageUtilError;
+import com.bumptech.glide.Glide;
 import com.demo.lss.aihotel.R;
 import com.demo.lss.aihotel.faceserver.CompareResult;
 import com.demo.lss.aihotel.faceserver.FaceServer;
+import com.demo.lss.aihotel.manager.DataManager;
 import com.demo.lss.aihotel.model.DrawInfo;
 import com.demo.lss.aihotel.model.FacePreviewInfo;
+import com.demo.lss.aihotel.model.Machine;
+import com.demo.lss.aihotel.model.MyLog;
 import com.demo.lss.aihotel.utils.ConfigUtil;
 import com.demo.lss.aihotel.utils.DrawHelper;
 import com.demo.lss.aihotel.utils.camera.CameraHelper;
@@ -50,7 +74,9 @@ import com.demo.lss.aihotel.view.FaceRectView;
 import com.demo.lss.aihotel.adapter.FaceSearchResultAdapter;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
@@ -61,14 +87,32 @@ import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Observer;
+import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
+import zuo.biao.library.util.StringUtil;
 
 
 public class RegisterAndRecognizeActivity extends BaseActivity implements ViewTreeObserver.OnGlobalLayoutListener {
     private static final String TAG = "RegisterAndRecognize";
+
+    /**
+     * 请求选择本地图片文件的请求码
+     */
+    private static final int ACTION_CHOOSE_IMAGE = 0x201;
+    /**
+     * 提示对话框
+     */
+    private AlertDialog progressDialog;
+    /**
+     * 被处理的图片
+     */
+    private Bitmap mBitmap = null;
+    private String mFileName = null;
+
+
     private static final int MAX_DETECT_NUM = 10;
     /**
      * 当FR成功，活体未成功时，FR等待活体的时间
@@ -92,6 +136,10 @@ public class RegisterAndRecognizeActivity extends BaseActivity implements ViewTr
     private Integer rgbCameraID = Camera.CameraInfo.CAMERA_FACING_FRONT;
 
     /**
+     * IMAGE模式人脸检测引擎，用于模拟身份证注册人脸
+     */
+    private FaceEngine faceEngine;
+    /**
      * VIDEO模式人脸检测引擎，用于预览帧人脸追踪
      */
     private FaceEngine ftEngine;
@@ -104,6 +152,7 @@ public class RegisterAndRecognizeActivity extends BaseActivity implements ViewTr
      */
     private FaceEngine flEngine;
 
+    private int faceInitCode = -1;
     private int ftInitCode = -1;
     private int frInitCode = -1;
     private int flInitCode = -1;
@@ -172,6 +221,13 @@ public class RegisterAndRecognizeActivity extends BaseActivity implements ViewTr
 
     };
 
+    public static final String INTENT_ENVIRONMENT = "INTENT_ENVIRONMENT";
+
+    public static Intent createIntent(Context context, String env) {
+        return new Intent(context, RegisterAndRecognizeActivity.class).putExtra(INTENT_ENVIRONMENT, env);
+
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -215,12 +271,22 @@ public class RegisterAndRecognizeActivity extends BaseActivity implements ViewTr
         int spanCount = (int) (dm.widthPixels / (getResources().getDisplayMetrics().density * 100 + 0.5f));
         recyclerShowFaceInfo.setLayoutManager(new GridLayoutManager(this, spanCount));
         recyclerShowFaceInfo.setItemAnimator(new DefaultItemAnimator());
+        progressDialog = new AlertDialog.Builder(this)
+                .setTitle(R.string.processing)
+                .setView(new ProgressBar(this))
+                .create();
+        if(!getIntent().getStringExtra(INTENT_ENVIRONMENT).equals("前台")){
+            findViewById(R.id.bt_id_card_input).setVisibility(View.GONE);
+        }
     }
 
     /**
      * 初始化引擎
      */
     private void initEngine() {
+        faceEngine = new FaceEngine();
+        faceInitCode = faceEngine.init(this, DetectMode.ASF_DETECT_MODE_IMAGE, DetectFaceOrientPriority.ASF_OP_ALL_OUT,
+                16, 1, FaceEngine.ASF_FACE_RECOGNITION | FaceEngine.ASF_FACE_DETECT | FaceEngine.ASF_AGE | FaceEngine.ASF_GENDER | FaceEngine.ASF_FACE3DANGLE | FaceEngine.ASF_LIVENESS);
         ftEngine = new FaceEngine();
         ftInitCode = ftEngine.init(this, DetectMode.ASF_DETECT_MODE_VIDEO, ConfigUtil.getFtOrient(this),
                 16, MAX_DETECT_NUM, FaceEngine.ASF_FACE_DETECT);
@@ -238,6 +304,9 @@ public class RegisterAndRecognizeActivity extends BaseActivity implements ViewTr
         ftEngine.getVersion(versionInfo);
         Log.i(TAG, "initEngine:  init: " + ftInitCode + "  version:" + versionInfo);
 
+        if (faceInitCode != ErrorInfo.MOK) {
+            String error = getString(R.string.specific_engine_init_failed, "faceEngine", faceInitCode);
+        }
         if (ftInitCode != ErrorInfo.MOK) {
             String error = getString(R.string.specific_engine_init_failed, "ftEngine", ftInitCode);
             Log.i(TAG, "initEngine: " + error);
@@ -259,6 +328,12 @@ public class RegisterAndRecognizeActivity extends BaseActivity implements ViewTr
      * 销毁引擎，faceHelper中可能会有特征提取耗时操作仍在执行，加锁防止crash
      */
     private void unInitEngine() {
+        if (faceInitCode == ErrorInfo.MOK && faceEngine != null) {
+            synchronized (faceEngine) {
+                int ftUnInitCode = faceEngine.unInit();
+                Log.i(TAG, "unInitEngine: " + ftUnInitCode);
+            }
+        }
         if (ftInitCode == ErrorInfo.MOK && ftEngine != null) {
             synchronized (ftEngine) {
                 int ftUnInitCode = ftEngine.unInit();
@@ -300,6 +375,10 @@ public class RegisterAndRecognizeActivity extends BaseActivity implements ViewTr
         if (delayFaceTaskCompositeDisposable != null) {
             delayFaceTaskCompositeDisposable.clear();
         }
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
+        progressDialog = null;
 
         FaceServer.getInstance().unInit();
         super.onDestroy();
@@ -458,7 +537,7 @@ public class RegisterAndRecognizeActivity extends BaseActivity implements ViewTr
                 if (facePreviewInfoList != null && faceRectView != null && drawHelper != null) {
                     drawPreviewInfo(facePreviewInfoList);
                 }
-                registerFace(nv211,facePreviewInfoList);
+                registerFaceByImage(facePreviewInfoList);
                 clearLeftFace(facePreviewInfoList);
 
                 if (facePreviewInfoList != null && facePreviewInfoList.size() > 0 && previewSize != null) {
@@ -520,7 +599,79 @@ public class RegisterAndRecognizeActivity extends BaseActivity implements ViewTr
         cameraHelper.start();
     }
 
-    private void registerFace(final byte[] nv21, final List<FacePreviewInfo> facePreviewInfoList) {
+
+    private void registerFaceByImage(final List<FacePreviewInfo> facePreviewInfoList) {
+        if (registerStatus == REGISTER_STATUS_READY && facePreviewInfoList != null && facePreviewInfoList.size() > 0) {
+            registerStatus = REGISTER_STATUS_PROCESSING;
+            if (progressDialog == null || progressDialog.isShowing()) {
+                return;
+            }
+            progressDialog.show();
+            //图像转化操作和部分引擎调用比较耗时，建议放子线程操作
+            Observable.create(new ObservableOnSubscribe<Boolean>() {
+                @Override
+                public void subscribe(ObservableEmitter<Boolean> emitter) throws Exception {
+                    Boolean success = processImage();
+                    emitter.onNext(success);
+                }
+            })
+                    .subscribeOn(Schedulers.computation())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Observer<Boolean>() {
+                        @Override
+                        public void onSubscribe(Disposable d) {
+
+                        }
+
+                        @Override
+                        public void onNext(Boolean success) {
+                            String result = success ? "register success!" : "register failed!";
+                            showToast(result);
+                            registerStatus = REGISTER_STATUS_DONE;
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            e.printStackTrace();
+                            showToast("register failed!");
+                            registerStatus = REGISTER_STATUS_DONE;
+                        }
+
+                        @Override
+                        public void onComplete() {
+
+                        }
+                    });
+        }
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == ACTION_CHOOSE_IMAGE) {
+            if (data == null || data.getData() == null) {
+                showToast(getString(R.string.get_picture_failed));
+                return;
+            }
+            try {
+                mBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), data.getData());
+                mFileName = StringUtil.getNumber(data.getData().toString());
+                mFileName.trim();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                return;
+            }
+            if (mBitmap == null) {
+                showToast(getString(R.string.get_picture_failed));
+                return;
+            }
+            registerStatus = REGISTER_STATUS_READY;
+        }
+    }
+
+    private void registerFaceByPreview(final byte[] nv21, final List<FacePreviewInfo> facePreviewInfoList) {
         if (registerStatus == REGISTER_STATUS_READY && facePreviewInfoList != null && facePreviewInfoList.size() > 0) {
             registerStatus = REGISTER_STATUS_PROCESSING;
             Observable.create(new ObservableOnSubscribe<Boolean>() {
@@ -679,6 +830,9 @@ public class RegisterAndRecognizeActivity extends BaseActivity implements ViewTr
 //                        Log.i(TAG, "onNext: fr search get result  = " + System.currentTimeMillis() + " trackId = " + requestId + "  similar = " + compareResult.getSimilar());
                         if (compareResult.getSimilar() > SIMILAR_THRESHOLD) {
                             boolean isAdded = false;
+                            String result = compareResult.getUserName();
+                            String userName = result.substring(0,result.length()-1);
+                            Integer sex = Integer.parseInt(result.substring(result.length()-1));
                             if (compareResultList == null) {
                                 requestFeatureStatusMap.put(requestId, RequestFeatureStatus.FAILED);
                                 faceHelper.setName(requestId, "VISITOR " + requestId);
@@ -700,9 +854,13 @@ public class RegisterAndRecognizeActivity extends BaseActivity implements ViewTr
                                 compareResult.setTrackId(requestId);
                                 compareResultList.add(compareResult);
                                 adapter.notifyItemInserted(compareResultList.size() - 1);
+                                //添加到日志
+                                Machine machine = new Machine(1,DataManager.getInstance().getEnvironment());
+                                MyLog myLog = new MyLog(machine,result,sex,true);
+                                DataManager.getInstance().saveMyLog(myLog);
                             }
                             requestFeatureStatusMap.put(requestId, RequestFeatureStatus.SUCCEED);
-                            faceHelper.setName(requestId, getString(R.string.recognize_success_notice, compareResult.getUserName()));
+                            faceHelper.setName(requestId, getString(R.string.recognize_success_notice, userName));
 
                         } else {
                             faceHelper.setName(requestId, getString(R.string.recognize_failed_notice, "NOT_REGISTERED"));
@@ -723,7 +881,6 @@ public class RegisterAndRecognizeActivity extends BaseActivity implements ViewTr
                 });
     }
 
-    byte[] nv211;
     /**
      * 将准备注册的状态置为{@link #REGISTER_STATUS_READY}
      *
@@ -731,10 +888,9 @@ public class RegisterAndRecognizeActivity extends BaseActivity implements ViewTr
      */
     public void register(View view) {
         if (registerStatus == REGISTER_STATUS_DONE) {
-            registerStatus = REGISTER_STATUS_READY;
-            Bitmap bmp = BitmapFactory.decodeResource(getResources(), R.drawable.idcard);
-            nv211=new byte[bmp.getWidth()*bmp.getHeight()*3/2];
-            ArcSoftImageUtil.bitmapToImageData(bmp,nv211,ArcSoftImageFormat.NV21);
+            Intent intent = new Intent(Intent.ACTION_PICK);
+            intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
+            startActivityForResult(intent, ACTION_CHOOSE_IMAGE);
         }
     }
 
@@ -860,5 +1016,99 @@ public class RegisterAndRecognizeActivity extends BaseActivity implements ViewTr
                         delayFaceTaskCompositeDisposable.remove(disposable);
                     }
                 });
+    }
+
+
+    /**
+     * 主要操作逻辑部分
+     */
+    public Boolean processImage() {
+        /**
+         * 1.准备操作（校验，显示，获取BGR）
+         */
+        if (mBitmap == null) {
+            return false;
+        }
+        // 图像对齐
+        Bitmap bitmap = ArcSoftImageUtil.getAlignedBitmap(mBitmap, true);
+
+        if (ftInitCode != ErrorInfo.MOK) {
+            return false;
+        }
+        if (bitmap == null) {
+            return false;
+        }
+        if (faceEngine == null) {
+            return false;
+        }
+
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+
+        // bitmap转bgr24
+        long start = System.currentTimeMillis();
+        byte[] bgr24 = ArcSoftImageUtil.createImageData(bitmap.getWidth(), bitmap.getHeight(), ArcSoftImageFormat.BGR24);
+        int transformCode = ArcSoftImageUtil.bitmapToImageData(bitmap, bgr24, ArcSoftImageFormat.BGR24);
+        if (transformCode != ArcSoftImageUtilError.CODE_SUCCESS) {
+            Log.e(TAG, "transform failed, code is " + transformCode);
+            return false;
+        }
+        List<FaceInfo> faceInfoList = new ArrayList<>();
+
+        /**
+         * 2.成功获取到了BGR24 数据，开始人脸检测
+         */
+        long fdStartTime = System.currentTimeMillis();
+        int detectCode = faceEngine.detectFaces(bgr24, width, height, FaceEngine.CP_PAF_BGR24, DetectModel.RGB, faceInfoList);
+        if (detectCode == ErrorInfo.MOK) {
+//            Log.i(TAG, "processImage: fd costTime = " + (System.currentTimeMillis() - fdStartTime));
+        }
+
+        /**
+         * 3.若检测结果人脸数量大于0，则在bitmap上绘制人脸框并且重新显示到ImageView，若人脸数量为0，则无法进行下一步操作，操作结束
+         */
+        if (faceInfoList.size() <= 0) {
+            return false;
+        }
+
+
+        /**
+         * 4.上一步已获取到人脸位置和角度信息，传入给process函数，进行年龄、性别、三维角度、活体检测
+         */
+
+        int faceProcessCode = faceEngine.process(bgr24, width, height, FaceEngine.CP_PAF_BGR24, faceInfoList, FaceEngine.ASF_AGE | FaceEngine.ASF_GENDER | FaceEngine.ASF_FACE3DANGLE | FaceEngine.ASF_LIVENESS);
+
+        //年龄信息结果
+        List<AgeInfo> ageInfoList = new ArrayList<>();
+        //性别信息结果
+        List<GenderInfo> genderInfoList = new ArrayList<>();
+        //人脸三维角度结果
+        List<Face3DAngle> face3DAngleList = new ArrayList<>();
+        //活体检测结果
+        List<LivenessInfo> livenessInfoList = new ArrayList<>();
+        //获取年龄、性别、三维角度、活体结果
+        int ageCode = faceEngine.getAge(ageInfoList);
+        int genderCode = faceEngine.getGender(genderInfoList);
+        int face3DAngleCode = faceEngine.getFace3DAngle(face3DAngleList);
+        int livenessCode = faceEngine.getLiveness(livenessInfoList);
+
+        if ((ageCode | genderCode | face3DAngleCode | livenessCode) != ErrorInfo.MOK) {
+            return false;
+        }
+
+        /**
+         *  5.注册人脸
+         */
+        boolean success = FaceServer.getInstance().registerBgr24(RegisterAndRecognizeActivity.this, bgr24, bitmap.getWidth(), bitmap.getHeight(), mFileName+genderInfoList.get(0).getGender());
+        if (success) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    progressDialog.dismiss();
+                }
+            });
+            return true;
+        }
+        return false;
     }
 }

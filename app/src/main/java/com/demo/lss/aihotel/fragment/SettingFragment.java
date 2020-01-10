@@ -14,30 +14,27 @@ limitations under the License.*/
 
 package com.demo.lss.aihotel.fragment;
 
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.demo.lss.aihotel.R;
 import com.demo.lss.aihotel.activity.AboutActivity;
 import com.demo.lss.aihotel.activity.ActiveActivity;
-import com.demo.lss.aihotel.activity.EnvironmentActivity;
-import com.demo.lss.aihotel.activity.ServerActivity;
+import com.demo.lss.aihotel.activity.ServerSettingActivity;
+import com.demo.lss.aihotel.faceserver.FaceServer;
 import com.demo.lss.aihotel.manager.DataManager;
 
 import zuo.biao.library.base.BaseFragment;
 import zuo.biao.library.ui.AlertDialog;
 import zuo.biao.library.ui.BottomMenuWindow;
-import zuo.biao.library.ui.EditTextInfoActivity;
-import zuo.biao.library.ui.EditTextInfoWindow;
-import zuo.biao.library.ui.SelectPictureActivity;
-import zuo.biao.library.util.StringUtil;
+import zuo.biao.library.util.SettingUtil;
 
 /**设置fragment
  * @author Lemon
@@ -97,7 +94,7 @@ public class SettingFragment extends BaseFragment implements OnClickListener ,Al
 			tvSettingActive.setText("未激活");
 		}
 		tvSettingEnvironment.setText(envStr);
-		tvSettingServerIP.setText(ITEM_SERVER_IP[0]);
+		tvSettingServerIP.setText(SettingUtil.getCurrentServerAddress(false));
 	}
 
 
@@ -106,7 +103,6 @@ public class SettingFragment extends BaseFragment implements OnClickListener ,Al
 	//UI显示区(操作UI，但不存在数据获取或处理代码，也不存在事件监听代码)>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 	private static final String[] TOPBAR_ENVIRONMENT_NAMES = {"前台", "电梯口", "房门","会议室","健身房","餐厅"};
-	private static final String[] ITEM_SERVER_IP = {"127.0.0.1:8080"};
 
 
 
@@ -144,6 +140,7 @@ public class SettingFragment extends BaseFragment implements OnClickListener ,Al
 		findView(R.id.llSettingEnvironment).setOnClickListener(this);
 		findView(R.id.llSettingServer).setOnClickListener(this);
 		findView(R.id.llSettingAbout).setOnClickListener(this);
+		findView(R.id.llSettingClearFace).setOnClickListener(this);
 	}
 
 
@@ -163,10 +160,16 @@ public class SettingFragment extends BaseFragment implements OnClickListener ,Al
 						.putExtra(BottomMenuWindow.INTENT_TITLE, "选择工作环境"), REQUEST_TO_BOTTOM_MENU, false);
 				break;
 			case R.id.llSettingServer:
-				toActivity(ServerActivity.createIntent(context));
+				toActivity(ServerSettingActivity.createIntent(context
+						, SettingUtil.getServerAddress(false), SettingUtil.getServerAddress(true)
+						, SettingUtil.APP_SETTING, Context.MODE_PRIVATE
+						, SettingUtil.KEY_SERVER_ADDRESS_NORMAL, SettingUtil.KEY_SERVER_ADDRESS_TEST));
 				break;
 			case R.id.llSettingAbout:
 				toActivity(AboutActivity.createIntent(context));
+				break;
+			case R.id.llSettingClearFace:
+				clearFaces();
 				break;
 			default:
 				break;
@@ -185,7 +188,7 @@ public class SettingFragment extends BaseFragment implements OnClickListener ,Al
 
 	private static final int REQUEST_TO_ACTIVE = 30;
 	private static final int REQUEST_TO_BOTTOM_MENU = 31;
-	private static final int REQUEST_TO_PLACE_PICKER = 32;
+	private static final int REQUEST_TO_PLACE_PICK = 32;
 	private static final int REQUEST_TO_DATE_PICKER = 33;
 	private static final int REQUEST_TO_TIME_PICKER = 34;
 
@@ -206,7 +209,9 @@ public class SettingFragment extends BaseFragment implements OnClickListener ,Al
 				tvSettingActive.setText("已激活");
 				DataManager.getInstance().saveActiveState(true);
 				new AlertDialog(context, "提示", "这台设备已被激活", false, 0, this).show();
+				break;
 			default:
+				break;
 		}
 	}
 
@@ -223,7 +228,26 @@ public class SettingFragment extends BaseFragment implements OnClickListener ,Al
 		}
 	}
 
-
+	public void clearFaces() {
+		int faceNum = FaceServer.getInstance().getFaceNumber(getContext());
+		if (faceNum == 0) {
+			showShortToast(getString(R.string.batch_process_no_face_need_to_delete));
+		} else {
+			android.support.v7.app.AlertDialog dialog = new android.support.v7.app.AlertDialog.Builder(getContext())
+					.setTitle(R.string.batch_process_notification)
+					.setMessage(getString(R.string.batch_process_confirm_delete, faceNum))
+					.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							int deleteCount = FaceServer.getInstance().clearAllFaces(getContext());
+							showShortToast(deleteCount + " faces cleared!");
+						}
+					})
+					.setNegativeButton(R.string.cancel, null)
+					.create();
+			dialog.show();
+		}
+	}
 
 
 

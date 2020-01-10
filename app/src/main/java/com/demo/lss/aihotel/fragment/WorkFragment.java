@@ -1,17 +1,15 @@
 package com.demo.lss.aihotel.fragment;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 
 import com.demo.lss.aihotel.R;
-import com.demo.lss.aihotel.activity.AboutActivity;
-import com.demo.lss.aihotel.activity.ActiveActivity;
 import com.demo.lss.aihotel.activity.RegisterAndRecognizeActivity;
-import com.demo.lss.aihotel.activity.ServerActivity;
+import com.demo.lss.aihotel.activity.ServerSettingActivity;
 import com.demo.lss.aihotel.manager.DataManager;
 
 import java.io.File;
@@ -19,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import zuo.biao.library.base.BaseFragment;
-import zuo.biao.library.ui.AlertDialog;
+import zuo.biao.library.util.SettingUtil;
 
 public class WorkFragment extends BaseFragment implements View.OnClickListener {
 
@@ -35,6 +33,7 @@ public class WorkFragment extends BaseFragment implements View.OnClickListener {
             "libarcsoft_image_util.so",
     };
 
+    public static final String KEY_ENVIRONMENT = "KEY_ENVIRONMENT";//工作环境
     //与Activity通信<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
     /**创建一个Fragment实例
@@ -130,8 +129,7 @@ public class WorkFragment extends BaseFragment implements View.OnClickListener {
         switch (v.getId()) {
             case R.id.llWork:
                 String env = DataManager.getInstance().getEnvironment();
-                if(env.equals("前台"))
-                    checkLibraryAndJump(RegisterAndRecognizeActivity.class);
+                checkLibraryAndJump(RegisterAndRecognizeActivity.class, env);
                 break;
             default:
                 break;
@@ -174,13 +172,12 @@ public class WorkFragment extends BaseFragment implements View.OnClickListener {
     }
 
 
-    void checkLibraryAndJump(Class activityClass) {
+    void checkLibraryAndJump(Class activityClass, String env) {
         if (!libraryExists) {
             showShortToast(getString(R.string.library_not_found));
             return;
         }
-        Intent intent = new Intent(context,activityClass);
-        startActivity(intent);
+        toActivity(RegisterAndRecognizeActivity.createIntent(context, env));
     }
     //内部类,尽量少用<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 

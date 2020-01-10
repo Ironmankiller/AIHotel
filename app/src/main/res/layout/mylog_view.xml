@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ListView中的ItemView里不要用Button等默认hasFocus的控件，以免onItemClick事件无响应 -->
+<!-- 如果一定要用，则必须在根布局加上 android:descendantFocusability="blocksDescendants" -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/ll_horizontal_match_wrap"
+    android:background="@drawable/white_to_alpha"
+    android:padding="4dp" >
+
+    <ImageView
+        android:id="@+id/ivMyLogHead"
+        style="@style/img_fitXY"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:src="@drawable/oval_alpha" />
+
+    <LinearLayout
+        style="@style/ll_vertical_match_wrap"
+        android:gravity="left|center_vertical"
+        android:paddingLeft="4dp" >
+
+        <LinearLayout style="@style/ll_horizontal_match_wrap" >
+
+            <LinearLayout
+                style="@style/ll_horizontal_match_wrap"
+                android:layout_weight="1" >
+
+                <TextView
+                    android:id="@+id/tvMyLogName"
+                    style="@style/text_middle_black"
+                    android:layout_marginRight="6dp"
+                    android:gravity="left"
+                    android:text="Name" />
+
+                <TextView
+                    android:id="@+id/tvMyLogSex"
+                    style="@style/text_micro"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:background="@drawable/circle_blue"
+                    android:text="男"
+                    android:textColor="@color/blue" />
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/ivMyLogStar"
+                android:layout_width="21dp"
+                android:layout_height="21dp"
+                android:src="@drawable/star_light" />
+        </LinearLayout>
+
+        <LinearLayout
+            style="@style/ll_horizontal_match_wrap"
+            android:layout_weight="1" >
+            <TextView
+                android:id="@+id/tvMyLogId"
+                style="@style/text_middle"
+                android:text="机器编号:" />
+
+            <TextView
+                android:id="@+id/tvMyLogEnvironment"
+                style="@style/text_middle"
+                android:layout_marginLeft="50dp"
+                android:text="工作环境:" />
+    </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvMyLogDate"
+            style="@style/text_middle"
+            android:text="时间:"/>
+    </LinearLayout>
+
+</LinearLayout>

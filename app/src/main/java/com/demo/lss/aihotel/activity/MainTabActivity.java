@@ -21,6 +21,8 @@ import android.support.v4.app.Fragment;
 import android.view.KeyEvent;
 
 import com.demo.lss.aihotel.R;
+import com.demo.lss.aihotel.faceserver.FaceServer;
+import com.demo.lss.aihotel.fragment.MyLogRecyclerFragment;
 import com.demo.lss.aihotel.fragment.SettingFragment;
 import com.demo.lss.aihotel.fragment.WorkFragment;
 
@@ -95,8 +97,7 @@ public class MainTabActivity extends BaseBottomTabActivity {
             case 0:
                 return WorkFragment.createInstance();
             case 1:
-                return SettingFragment.createInstance();
-                //return SettingFragment.createInstance();
+                return MyLogRecyclerFragment.createInstance(MyLogRecyclerFragment.RANGE_RECOMMEND);
             default:
                 return SettingFragment.createInstance();
         }
@@ -131,6 +132,7 @@ public class MainTabActivity extends BaseBottomTabActivity {
 
     @Override
     public void initData() {// 必须调用
+        FaceServer.getInstance().init(this);
         super.initData();
 
     }
