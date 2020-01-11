@@ -17,9 +17,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import zuo.biao.library.base.BaseFragment;
+import zuo.biao.library.ui.AlertDialog;
 import zuo.biao.library.util.SettingUtil;
 
-public class WorkFragment extends BaseFragment implements View.OnClickListener {
+public class WorkFragment extends BaseFragment implements View.OnClickListener ,AlertDialog.OnDialogButtonClickListener{
 
     private static final String TAG = "WorkFragment";
 
@@ -136,6 +137,13 @@ public class WorkFragment extends BaseFragment implements View.OnClickListener {
         }
     }
 
+    @Override
+    public void onDialogButtonClick(int requestCode, boolean isPositive) {
+        if (! isPositive) {
+            return;
+        }
+    }
+
 
     //生命周期、onActivityResult<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -177,7 +185,11 @@ public class WorkFragment extends BaseFragment implements View.OnClickListener {
             showShortToast(getString(R.string.library_not_found));
             return;
         }
-        toActivity(RegisterAndRecognizeActivity.createIntent(context, env));
+        if(env!=null)
+            toActivity(RegisterAndRecognizeActivity.createIntent(context, env));
+        else
+            new AlertDialog(context, "提示", "请先选择工作环境", false, 0, this).show();
+
     }
     //内部类,尽量少用<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 

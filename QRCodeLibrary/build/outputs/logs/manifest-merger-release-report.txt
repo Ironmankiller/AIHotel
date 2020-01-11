@@ -1,0 +1,57 @@
+-- Merging decision tree log ---
+manifest
+ADDED from E:\AIHotel\QRCodeLibrary\src\main\AndroidManifest.xml:2:1-21:12
+INJECTED from E:\AIHotel\QRCodeLibrary\src\main\AndroidManifest.xml:2:1-21:12
+INJECTED from E:\AIHotel\QRCodeLibrary\src\main\AndroidManifest.xml:2:1-21:12
+INJECTED from E:\AIHotel\QRCodeLibrary\src\main\AndroidManifest.xml:2:1-21:12
+INJECTED from E:\AIHotel\QRCodeLibrary\src\main\AndroidManifest.xml:2:1-21:12
+INJECTED from E:\AIHotel\QRCodeLibrary\src\main\AndroidManifest.xml:2:1-21:12
+INJECTED from E:\AIHotel\QRCodeLibrary\src\main\AndroidManifest.xml:2:1-21:12
+	package
+		ADDED from E:\AIHotel\QRCodeLibrary\src\main\AndroidManifest.xml:3:11-37
+		INJECTED from E:\AIHotel\QRCodeLibrary\src\main\AndroidManifest.xml
+		INJECTED from E:\AIHotel\QRCodeLibrary\src\main\AndroidManifest.xml
+	android:versionName
+		ADDED from E:\AIHotel\QRCodeLibrary\src\main\AndroidManifest.xml:5:11-36
+		INJECTED from E:\AIHotel\QRCodeLibrary\src\main\AndroidManifest.xml
+		INJECTED from E:\AIHotel\QRCodeLibrary\src\main\AndroidManifest.xml
+	xmlns:android
+		ADDED from E:\AIHotel\QRCodeLibrary\src\main\AndroidManifest.xml:2:11-69
+	android:versionCode
+		ADDED from E:\AIHotel\QRCodeLibrary\src\main\AndroidManifest.xml:4:11-34
+		INJECTED from E:\AIHotel\QRCodeLibrary\src\main\AndroidManifest.xml
+		INJECTED from E:\AIHotel\QRCodeLibrary\src\main\AndroidManifest.xml
+uses-permission#android.permission.VIBRATE
+ADDED from E:\AIHotel\QRCodeLibrary\src\main\AndroidManifest.xml:11:5-66
+	android:name
+		ADDED from E:\AIHotel\QRCodeLibrary\src\main\AndroidManifest.xml:11:22-63
+uses-permission#android.permission.CAMERA
+ADDED from E:\AIHotel\QRCodeLibrary\src\main\AndroidManifest.xml:12:5-65
+	android:name
+		ADDED from E:\AIHotel\QRCodeLibrary\src\main\AndroidManifest.xml:12:22-62
+uses-permission#android.permission.FLASHLIGHT
+ADDED from E:\AIHotel\QRCodeLibrary\src\main\AndroidManifest.xml:13:5-69
+	android:name
+		ADDED from E:\AIHotel\QRCodeLibrary\src\main\AndroidManifest.xml:13:22-66
+uses-feature#android.hardware.camera
+ADDED from E:\AIHotel\QRCodeLibrary\src\main\AndroidManifest.xml:15:5-60
+	android:name
+		ADDED from E:\AIHotel\QRCodeLibrary\src\main\AndroidManifest.xml:15:19-57
+uses-feature#android.hardware.camera.autofocus
+ADDED from E:\AIHotel\QRCodeLibrary\src\main\AndroidManifest.xml:16:5-70
+	android:name
+		ADDED from E:\AIHotel\QRCodeLibrary\src\main\AndroidManifest.xml:16:19-67
+uses-sdk
+INJECTED from E:\AIHotel\QRCodeLibrary\src\main\AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from E:\AIHotel\QRCodeLibrary\src\main\AndroidManifest.xml
+INJECTED from E:\AIHotel\QRCodeLibrary\src\main\AndroidManifest.xml
+INJECTED from E:\AIHotel\QRCodeLibrary\src\main\AndroidManifest.xml
+INJECTED from E:\AIHotel\QRCodeLibrary\src\main\AndroidManifest.xml
+	android:targetSdkVersion
+		INJECTED from E:\AIHotel\QRCodeLibrary\src\main\AndroidManifest.xml
+		ADDED from E:\AIHotel\QRCodeLibrary\src\main\AndroidManifest.xml
+		INJECTED from E:\AIHotel\QRCodeLibrary\src\main\AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from E:\AIHotel\QRCodeLibrary\src\main\AndroidManifest.xml
+		ADDED from E:\AIHotel\QRCodeLibrary\src\main\AndroidManifest.xml
+		INJECTED from E:\AIHotel\QRCodeLibrary\src\main\AndroidManifest.xml

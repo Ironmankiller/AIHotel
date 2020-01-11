@@ -133,7 +133,7 @@ public abstract class BaseActivity extends FragmentActivity implements ActivityP
 			);
 		}
 		SystemBarTintManager tintManager = new SystemBarTintManager(this);
-		tintManager.setStatusBarTintEnabled(true);
+		//tintManager.setStatusBarTintEnabled(true);
 		tintManager.setStatusBarTintResource(R.color.topbar_bg);//状态背景色，可传drawable资源
 		// 状态栏沉浸，4.4+生效 >>>>>>>>>>>>>>>>>
 

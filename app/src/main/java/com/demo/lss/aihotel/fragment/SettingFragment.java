@@ -163,7 +163,7 @@ public class SettingFragment extends BaseFragment implements OnClickListener ,Al
 				toActivity(ServerSettingActivity.createIntent(context
 						, SettingUtil.getServerAddress(false), SettingUtil.getServerAddress(true)
 						, SettingUtil.APP_SETTING, Context.MODE_PRIVATE
-						, SettingUtil.KEY_SERVER_ADDRESS_NORMAL, SettingUtil.KEY_SERVER_ADDRESS_TEST));
+						, SettingUtil.KEY_SERVER_ADDRESS_NORMAL, SettingUtil.KEY_SERVER_ADDRESS_TEST),REQUEST_TO_SERVER_SETTING);
 				break;
 			case R.id.llSettingAbout:
 				toActivity(AboutActivity.createIntent(context));
@@ -209,6 +209,9 @@ public class SettingFragment extends BaseFragment implements OnClickListener ,Al
 				tvSettingActive.setText("已激活");
 				DataManager.getInstance().saveActiveState(true);
 				new AlertDialog(context, "提示", "这台设备已被激活", false, 0, this).show();
+				break;
+			case REQUEST_TO_SERVER_SETTING:
+				tvSettingServerIP.setText(SettingUtil.getCurrentServerAddress(false));
 				break;
 			default:
 				break;
